@@ -1,11 +1,6 @@
 {
   "buildCommand": "",
-  "outputDirectory": "",
+  "outputDirectory": ".",
   "installCommand": "",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
+  "public": true
 }
