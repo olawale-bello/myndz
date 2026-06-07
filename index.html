@@ -750,7 +750,7 @@
   // Module Registry: defines structure for each data module
   const MODULE_CONFIG = {
     tasks: {
-      storage: 'dashTasks',
+      storage: 'dashWale_Tasks',
       fields: ['desc', 'start', 'date', 'cat', 'pri'],
       defaults: { done: false, start: defaultDate, date: defaultDate, cat: 'General', pri: 'med' },
       validation: (data) => data.desc,
@@ -758,7 +758,7 @@
       sort: (a, b) => new Date(b.date) - new Date(a.date),
     },
     invoices: {
-      storage: 'dashInvoices',
+      storage: 'dashWale_Invoices',
       fields: ['num', 'client', 'date', 'due', 'amount', 'tax'],
       defaults: { status: 'unpaid', date: defaultDate, tax: 0 },
       validation: (data) => data.num && data.client && data.amount,
@@ -766,7 +766,7 @@
       sort: (a, b) => b.id - a.id,
     },
     goals: {
-      storage: 'dashGoals',
+      storage: 'dashWale_Goals',
       fields: ['name', 'target', 'current', 'type', 'deadline'],
       defaults: { type: 'recurring' },
       validation: (data) => data.name && data.target,
@@ -774,7 +774,7 @@
       sort: (a, b) => b.id - a.id,
     },
     schedule: {
-      storage: 'dashSchedule',
+      storage: 'dashWale_Schedule',
       fields: ['title', 'day', 'time', 'duration'],
       defaults: {},
       validation: (data) => data.title && data.time,
@@ -786,7 +786,7 @@
       },
     },
     finance: {
-      storage: 'dashFinance',
+      storage: 'dashWale_Finance',
       fields: ['type', 'amount', 'desc', 'cat'],
       defaults: { date: defaultDate, type: 'income', cat: 'General' },
       validation: (data) => data.amount && data.desc,
@@ -794,7 +794,7 @@
       sort: (a, b) => b.id - a.id,
     },
     gym: {
-      storage: 'dashGym',
+      storage: 'dashWale_Gym',
       fields: ['date', 'type', 'duration', 'notes'],
       defaults: { date: defaultDate, type: 'Push', notes: '' },
       validation: (data) => data.date && data.duration,
@@ -802,7 +802,7 @@
       sort: (a, b) => new Date(b.date) - new Date(a.date),
     },
     notes: {
-      storage: 'dashNotes',
+      storage: 'dashWale_Notes',
       fields: ['title', 'type', 'content'],
       defaults: { date: defaultDate, type: 'Journal' },
       validation: (data) => data.title && data.content,
@@ -810,7 +810,7 @@
       sort: (a, b) => b.id - a.id,
     },
     time: {
-      storage: 'dashTime',
+      storage: 'dashWale_Time',
       fields: ['client', 'hours', 'date'],
       defaults: { date: defaultDate },
       validation: (data) => data.client && data.hours,
@@ -818,7 +818,7 @@
       sort: (a, b) => b.id - a.id,
     },
     clients: {
-      storage: 'dashClients',
+      storage: 'dashWale_Clients',
       fields: ['name', 'email', 'rate', 'terms', 'notes'],
       defaults: { dateAdded: defaultDate, terms: 'NET 30', rate: 0 },
       validation: (data) => data.name,
@@ -826,7 +826,7 @@
       sort: (a, b) => b.id - a.id,
     },
     nutrition: {
-      storage: 'dashNutrition',
+      storage: 'dashWale_Nutrition',
       fields: ['type', 'desc', 'mood', 'date'],
       defaults: { date: defaultDate, type: 'Breakfast', mood: 'good' },
       validation: (data) => data.desc,
@@ -834,7 +834,7 @@
       sort: (a, b) => new Date(b.date) - new Date(a.date),
     },
     faith: {
-      storage: 'dashFaith',
+      storage: 'dashWale_Faith',
       fields: ['type', 'duration', 'notes', 'date'],
       defaults: { date: defaultDate, type: 'Prayer', notes: '' },
       validation: (data) => data.duration,
@@ -842,7 +842,7 @@
       sort: (a, b) => b.id - a.id,
     },
     health: {
-      storage: 'dashHealth',
+      storage: 'dashWale_Health',
       fields: ['cat', 'value', 'notes', 'date'],
       defaults: { date: defaultDate, cat: 'Sleep', notes: '' },
       validation: (data) => data.value,
@@ -850,7 +850,7 @@
       sort: (a, b) => new Date(b.date) - new Date(a.date),
     },
     relationships: {
-      storage: 'dashRelationships',
+      storage: 'dashWale_Relationships',
       fields: ['person', 'activity', 'notes', 'date'],
       defaults: { date: defaultDate, activity: 'Call', notes: '' },
       validation: (data) => data.person,
@@ -858,7 +858,7 @@
       sort: (a, b) => new Date(b.date) - new Date(a.date),
     },
     learning: {
-      storage: 'dashLearning',
+      storage: 'dashWale_Learning',
       fields: ['topic', 'time', 'notes', 'date'],
       defaults: { date: defaultDate, notes: '' },
       validation: (data) => data.topic,
@@ -866,7 +866,7 @@
       sort: (a, b) => new Date(b.date) - new Date(a.date),
     },
     progress: {
-      storage: 'dashProgress',
+      storage: 'dashWale_Progress',
       fields: ['period', 'target', 'current', 'category', 'startDate', 'endDate'],
       defaults: { period: 'daily', category: 'income' },
       validation: (data) => data.period && data.target,
