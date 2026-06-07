@@ -1679,43 +1679,62 @@
 
   async function loadFirestoreData() {
     try {
+      console.log('🔄 Loading data from Firestore...');
+
       // Load Finance data
       const financeSnap = await db.collection('finance').get();
+      console.log('Finance collection size:', financeSnap.size);
       if (!financeSnap.empty) {
-        financeSnap.forEach(doc => {
+        financeSnap.forEach((doc, idx) => {
+          console.log(`Finance doc ${idx}:`, doc.data());
           const data = doc.data();
           if (data.transactions) {
+            console.log('Found transactions:', data.transactions.length);
             localStorage.setItem('dashWale_Finance', JSON.stringify(data.transactions));
+          } else {
+            console.log('No transactions field in doc', doc.id);
           }
         });
+      } else {
+        console.log('⚠️ Finance collection is empty');
       }
 
       // Load Gym data
       const gymSnap = await db.collection('gym').get();
+      console.log('Gym collection size:', gymSnap.size);
       if (!gymSnap.empty) {
-        gymSnap.forEach(doc => {
+        gymSnap.forEach((doc, idx) => {
+          console.log(`Gym doc ${idx}:`, doc.data());
           const data = doc.data();
           if (data.sessions) {
+            console.log('Found sessions:', data.sessions.length);
             localStorage.setItem('dashWale_Gym', JSON.stringify(data.sessions));
           }
         });
+      } else {
+        console.log('⚠️ Gym collection is empty');
       }
 
       // Load Tasks data
       const tasksSnap = await db.collection('tasks').get();
+      console.log('Tasks collection size:', tasksSnap.size);
       if (!tasksSnap.empty) {
-        tasksSnap.forEach(doc => {
+        tasksSnap.forEach((doc, idx) => {
+          console.log(`Tasks doc ${idx}:`, doc.data());
           const data = doc.data();
           if (data.items) {
+            console.log('Found items:', data.items.length);
             localStorage.setItem('dashWale_Tasks', JSON.stringify(data.items));
           }
         });
+      } else {
+        console.log('⚠️ Tasks collection is empty');
       }
 
-      console.log('✅ Loaded data from Firebase');
+      console.log('✅ Firestore load completed');
       refresh();
     } catch (error) {
-      console.error('Firebase load error:', error);
+      console.error('❌ Firebase load error:', error);
     }
   }
 
