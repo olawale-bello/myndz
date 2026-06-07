@@ -1790,11 +1790,16 @@
     }
 
     // Initialize and load from Firebase and set up real-time sync
+    renderApp(); // Show UI first
     initializeFirebaseData().then(() => {
-      loadFirestoreData();
+      return loadFirestoreData(); // Wait for data to load
+    }).then(() => {
       setupRealtimeSync();
+      refresh(); // Refresh UI after data loads
+    }).catch(error => {
+      console.error('Failed to load Firebase data:', error);
+      refresh();
     });
-    renderApp();
   }
 
   function loadFirebaseData() {
