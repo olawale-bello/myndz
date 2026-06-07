@@ -13,6 +13,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js"></script>
 <style>
   :root{
     --bg:#f4f5f7;
@@ -723,6 +725,21 @@
 </div>
 
 <script>
+  // ========== FIREBASE CONFIG ==========
+  const firebaseConfig = {
+    apiKey: "AIzaSyDZovVm9wFJQhFszp3SxWeJcoagfIZdgtI",
+    authDomain: "wale-0s.firebaseapp.com",
+    projectId: "wale-0s",
+    storageBucket: "wale-0s.firebasestorage.app",
+    messagingSenderId: "487487301272",
+    appId: "1:487487301272:web:aa7ac81bbf0890d4e3d2ed",
+    measurementId: "G-N6CHYTDYL8"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
   // ========== CONFIG & STATE ==========
   let userData = { name: '', studio: '', target: 2000, email: '', logo: '', currency: 'EUR' };
   const currencySymbols = { EUR: '€', USD: '$', GBP: '£', NGN: '₦' };
@@ -968,6 +985,12 @@
     }
 
     saveStorageData(module, items);
+
+    // Sync to Firebase (Finance, Gym, Tasks)
+    if (['finance', 'gym', 'tasks'].includes(module)) {
+      saveToFirebase(module, items);
+    }
+
     closeForm(module);
     refresh();
   }
@@ -977,6 +1000,12 @@
     let items = getStorageData(module);
     items = items.filter(item => item.id !== parseInt(id));
     saveStorageData(module, items);
+
+    // Sync deletion to Firebase
+    if (['finance', 'gym', 'tasks'].includes(module)) {
+      saveToFirebase(module, items);
+    }
+
     refresh();
   }
 
@@ -1594,6 +1623,107 @@
   }
 
   // ========== APP INITIALIZATION ==========
+  // ========== FIREBASE SYNC ==========
+  async function loadFirestoreData() {
+    try {
+      // Load Finance data
+      const financeSnap = await db.collection('finance').get();
+      if (!financeSnap.empty) {
+        const financeData = financeSnap.docs.map(doc => doc.data());
+        localStorage.setItem('dashWale_Finance', JSON.stringify(financeData));
+      }
+
+      // Load Gym data
+      const gymSnap = await db.collection('gym').get();
+      if (!gymSnap.empty) {
+        const gymData = [];
+        gymSnap.forEach(doc => {
+          const data = doc.data();
+          if (data.sessions) {
+            gymData.push(...data.sessions);
+          }
+        });
+        if (gymData.length > 0) {
+          localStorage.setItem('dashWale_Gym', JSON.stringify(gymData));
+        }
+      }
+
+      // Load Tasks data
+      const tasksSnap = await db.collection('tasks').get();
+      if (!tasksSnap.empty) {
+        const tasksData = [];
+        tasksSnap.forEach(doc => {
+          const data = doc.data();
+          if (data.items) {
+            tasksData.push(...data.items);
+          }
+        });
+        if (tasksData.length > 0) {
+          localStorage.setItem('dashWale_Tasks', JSON.stringify(tasksData));
+        }
+      }
+
+      console.log('✅ Loaded data from Firebase');
+      refresh();
+    } catch (error) {
+      console.error('Firebase load error:', error);
+    }
+  }
+
+  async function saveToFirebase(module, data) {
+    try {
+      if (module === 'finance') {
+        await db.collection('finance').doc('transactions').set({ transactions: data }, { merge: true });
+      } else if (module === 'gym') {
+        await db.collection('gym').doc('sessions').set({ sessions: data }, { merge: true });
+      } else if (module === 'tasks') {
+        await db.collection('tasks').doc('items').set({ items: data }, { merge: true });
+      }
+      console.log('✅ Saved to Firebase:', module);
+    } catch (error) {
+      console.error('Firebase save error:', error);
+    }
+  }
+
+  // Listen for real-time updates
+  function setupRealtimeSync() {
+    db.collection('finance').onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === 'modified' || change.type === 'added') {
+          const data = change.doc.data();
+          if (data.transactions) {
+            localStorage.setItem('dashWale_Finance', JSON.stringify(data.transactions));
+            refresh();
+          }
+        }
+      });
+    });
+
+    db.collection('gym').onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === 'modified' || change.type === 'added') {
+          const data = change.doc.data();
+          if (data.sessions) {
+            localStorage.setItem('dashWale_Gym', JSON.stringify(data.sessions));
+            refresh();
+          }
+        }
+      });
+    });
+
+    db.collection('tasks').onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === 'modified' || change.type === 'added') {
+          const data = change.doc.data();
+          if (data.items) {
+            localStorage.setItem('dashWale_Tasks', JSON.stringify(data.items));
+            refresh();
+          }
+        }
+      });
+    });
+  }
+
   function initApp() {
     const saved = localStorage.getItem('dashWale_User');
     if (saved) {
@@ -1608,8 +1738,11 @@
         currency: 'EUR'
       };
       localStorage.setItem('dashWale_User', JSON.stringify(userData));
-      loadFirebaseData();
     }
+
+    // Load from Firebase and set up real-time sync
+    loadFirestoreData();
+    setupRealtimeSync();
     renderApp();
   }
 
