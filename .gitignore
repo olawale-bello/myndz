@@ -1,0 +1,28 @@
+# System files
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+Desktop/
+Documents/
+Downloads/
+OneDrive/
+AppData/
+.config/
+.thumbnails/
+
+# Project ignore (keep only dashboard files)
+*.md
+debug.py
+test-data.html
+logo_embedded.txt
+dash-personal.html
+dash-template-refactored.html
