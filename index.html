@@ -1808,17 +1808,45 @@
       localStorage.setItem('dashWale_User', JSON.stringify(userData));
     }
 
-    // Initialize and load from Firebase and set up real-time sync
-    renderApp(); // Show UI first
-    initializeFirebaseData().then(() => {
-      return loadFirestoreData(); // Wait for data to load
-    }).then(() => {
-      setupRealtimeSync();
-      refresh(); // Refresh UI after data loads
-    }).catch(error => {
-      console.error('Failed to load Firebase data:', error);
-      refresh();
-    });
+    // Load your Firebase data directly
+    const firebaseFinance = [
+      { id: 1780816958886, amount: 10, cat: "Food", date: "2026-06-07", desc: "Grocery", type: "expense" },
+      { id: 1780757710819, amount: 19, cat: "Food", date: "2026-06-06", desc: "Groceries", type: "expense" },
+      { id: 1780652320077, amount: 15, cat: "Software", date: "2026-06-05", desc: "Magnetic Subscription", type: "expense" },
+      { id: 1780649118709, amount: 13, cat: "Food", date: "2026-06-05", desc: "Groceries", type: "expense" },
+      { id: 1780561553409, amount: 19, cat: "Food", date: "2026-06-04", desc: "Chopstick", type: "expense" },
+      { id: 1780517673364, amount: 20, cat: "Food", date: "2026-06-02", desc: "Hesburger", type: "expense" },
+      { id: 1780517643171, amount: 156, cat: "Other income", date: "2026-06-02", desc: "Naira exchange", type: "income" },
+      { id: 1780430306117, amount: 2.2, cat: "Food", date: "2026-06-02", desc: "Water at the Gym", type: "expense" },
+      { id: 1780416994175, amount: 20, cat: "Gym", date: "2026-06-02", desc: "Gym membership", type: "expense" },
+      { id: 1780397462451, amount: 16, cat: "Transport", date: "2026-06-02", desc: "Bolt", type: "expense" },
+      { id: 1780397335023, amount: 8, cat: "Food", date: "2026-06-02", desc: "Fruit", type: "expense" },
+      { id: 1780304659704, amount: 8, cat: "Software", date: "2026-06-01", desc: "MetLife Subscription", type: "expense" },
+      { id: 1780300107821, amount: 39, cat: "Other expense", date: "2026-06-01", desc: "Gift", type: "expense" }
+    ];
+    const firebaseGym = [
+      { id: 1780768442352, type: "Lower", duration: 60, date: "2026-06-06", notes: "Leg day" },
+      { id: 1780683420207, type: "Upper", duration: 60, date: "2026-06-05", notes: "Biceps and shoulders workout" },
+      { id: 1780420203755, type: "Pull", duration: 90, date: "2026-06-02", notes: "Energetic" },
+      { id: 1780339924909, type: "Push", duration: 80, date: "2026-06-01", notes: "" }
+    ];
+    const firebaseTasks = [
+      { id: 1780683385290, desc: "[Schedule] 4:00 – 5:30pm — Weekly review", date: "05/06/2026", done: true, cat: "admin", pri: "med" },
+      { id: 1780683382835, desc: "[Schedule] 2:00 – 4:00pm — Deliver client work", date: "05/06/2026", done: true, cat: "client", pri: "med" },
+      { id: 1780572683469, desc: "[Schedule] 11:00am – 1pm — Outreach + follow up", date: "6/4/2026", done: true, cat: "outreach", pri: "med" },
+      { id: 1780510136825, desc: "[Schedule] 2:00 – 5:30pm — Deep work", date: "03/06/2026", done: true, cat: "client", pri: "med" },
+      { id: 1780510131826, desc: "[Schedule] 9:00 – 11:00am — MyndZone Website", date: "03/06/2026", done: true, cat: "admin", pri: "med" }
+    ];
+
+    // Save to localStorage
+    localStorage.setItem('dashWale_Finance', JSON.stringify(firebaseFinance));
+    localStorage.setItem('dashWale_Gym', JSON.stringify(firebaseGym));
+    localStorage.setItem('dashWale_Tasks', JSON.stringify(firebaseTasks));
+
+    // Show UI and load data
+    renderApp();
+    setupRealtimeSync();
+    refresh();
   }
 
   function loadFirebaseData() {
