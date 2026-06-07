@@ -1624,43 +1624,92 @@
 
   // ========== APP INITIALIZATION ==========
   // ========== FIREBASE SYNC ==========
+  async function initializeFirebaseData() {
+    try {
+      // Check if collections have data, if not populate with sample data
+      const financeSnap = await db.collection('finance').get();
+      if (financeSnap.empty) {
+        const firebaseFinance = [
+          { id: 1780816958886, amount: 10, cat: "Food", date: "2026-06-07", desc: "Grocery", type: "expense" },
+          { id: 1780757710819, amount: 19, cat: "Food", date: "2026-06-06", desc: "Groceries", type: "expense" },
+          { id: 1780652320077, amount: 15, cat: "Software", date: "2026-06-05", desc: "Magnetic Subscription", type: "expense" },
+          { id: 1780649118709, amount: 13, cat: "Food", date: "2026-06-05", desc: "Groceries", type: "expense" },
+          { id: 1780561553409, amount: 19, cat: "Food", date: "2026-06-04", desc: "Chopstick", type: "expense" },
+          { id: 1780517673364, amount: 20, cat: "Food", date: "2026-06-02", desc: "Hesburger", type: "expense" },
+          { id: 1780517643171, amount: 156, cat: "Other income", date: "2026-06-02", desc: "Naira exchange", type: "income" },
+          { id: 1780430306117, amount: 2.2, cat: "Food", date: "2026-06-02", desc: "Water at the Gym", type: "expense" },
+          { id: 1780416994175, amount: 20, cat: "Gym", date: "2026-06-02", desc: "Gym membership", type: "expense" },
+          { id: 1780397462451, amount: 16, cat: "Transport", date: "2026-06-02", desc: "Bolt", type: "expense" },
+          { id: 1780397335023, amount: 8, cat: "Food", date: "2026-06-02", desc: "Fruit", type: "expense" },
+          { id: 1780304659704, amount: 8, cat: "Software", date: "2026-06-01", desc: "MetLife Subscription", type: "expense" },
+          { id: 1780300107821, amount: 39, cat: "Other expense", date: "2026-06-01", desc: "Gift", type: "expense" }
+        ];
+        await db.collection('finance').doc('transactions').set({ transactions: firebaseFinance });
+        console.log('✅ Populated Finance data to Firestore');
+      }
+
+      const gymSnap = await db.collection('gym').get();
+      if (gymSnap.empty) {
+        const firebaseGym = [
+          { id: 1780768442352, type: "Lower", duration: 60, date: "2026-06-06", notes: "Leg day" },
+          { id: 1780683420207, type: "Upper", duration: 60, date: "2026-06-05", notes: "Biceps and shoulders workout" },
+          { id: 1780420203755, type: "Pull", duration: 90, date: "2026-06-02", notes: "Energetic" },
+          { id: 1780339924909, type: "Push", duration: 80, date: "2026-06-01", notes: "" }
+        ];
+        await db.collection('gym').doc('sessions').set({ sessions: firebaseGym });
+        console.log('✅ Populated Gym data to Firestore');
+      }
+
+      const tasksSnap = await db.collection('tasks').get();
+      if (tasksSnap.empty) {
+        const firebaseTasks = [
+          { id: 1780683385290, desc: "[Schedule] 4:00 – 5:30pm — Weekly review", date: "05/06/2026", done: true, cat: "admin", pri: "med" },
+          { id: 1780683382835, desc: "[Schedule] 2:00 – 4:00pm — Deliver client work", date: "05/06/2026", done: true, cat: "client", pri: "med" },
+          { id: 1780572683469, desc: "[Schedule] 11:00am – 1pm — Outreach + follow up", date: "6/4/2026", done: true, cat: "outreach", pri: "med" },
+          { id: 1780510136825, desc: "[Schedule] 2:00 – 5:30pm — Deep work", date: "03/06/2026", done: true, cat: "client", pri: "med" },
+          { id: 1780510131826, desc: "[Schedule] 9:00 – 11:00am — MyndZone Website", date: "03/06/2026", done: true, cat: "admin", pri: "med" }
+        ];
+        await db.collection('tasks').doc('items').set({ items: firebaseTasks });
+        console.log('✅ Populated Tasks data to Firestore');
+      }
+    } catch (error) {
+      console.error('Firebase initialization error:', error);
+    }
+  }
+
   async function loadFirestoreData() {
     try {
       // Load Finance data
       const financeSnap = await db.collection('finance').get();
       if (!financeSnap.empty) {
-        const financeData = financeSnap.docs.map(doc => doc.data());
-        localStorage.setItem('dashWale_Finance', JSON.stringify(financeData));
+        financeSnap.forEach(doc => {
+          const data = doc.data();
+          if (data.transactions) {
+            localStorage.setItem('dashWale_Finance', JSON.stringify(data.transactions));
+          }
+        });
       }
 
       // Load Gym data
       const gymSnap = await db.collection('gym').get();
       if (!gymSnap.empty) {
-        const gymData = [];
         gymSnap.forEach(doc => {
           const data = doc.data();
           if (data.sessions) {
-            gymData.push(...data.sessions);
+            localStorage.setItem('dashWale_Gym', JSON.stringify(data.sessions));
           }
         });
-        if (gymData.length > 0) {
-          localStorage.setItem('dashWale_Gym', JSON.stringify(gymData));
-        }
       }
 
       // Load Tasks data
       const tasksSnap = await db.collection('tasks').get();
       if (!tasksSnap.empty) {
-        const tasksData = [];
         tasksSnap.forEach(doc => {
           const data = doc.data();
           if (data.items) {
-            tasksData.push(...data.items);
+            localStorage.setItem('dashWale_Tasks', JSON.stringify(data.items));
           }
         });
-        if (tasksData.length > 0) {
-          localStorage.setItem('dashWale_Tasks', JSON.stringify(tasksData));
-        }
       }
 
       console.log('✅ Loaded data from Firebase');
@@ -1740,9 +1789,11 @@
       localStorage.setItem('dashWale_User', JSON.stringify(userData));
     }
 
-    // Load from Firebase and set up real-time sync
-    loadFirestoreData();
-    setupRealtimeSync();
+    // Initialize and load from Firebase and set up real-time sync
+    initializeFirebaseData().then(() => {
+      loadFirestoreData();
+      setupRealtimeSync();
+    });
     renderApp();
   }
 
